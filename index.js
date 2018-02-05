@@ -174,6 +174,8 @@ var AppMuninClient = new Class({
 		
 		this.request = new Munin(this.options.host, this.options.port);
 		
+		debug_internals('this.request %o', this.request);
+		
 		/**
 		 * munin
 		 *  - end
@@ -244,7 +246,7 @@ var AppMuninClient = new Class({
 		var uri = '';
 		
 		var instance = this;
-		var conn = this.request;
+		//var conn = this.request;
 		
 			
 		Array.each(this.methods, function(verb){
@@ -314,6 +316,7 @@ var AppMuninClient = new Class({
 							
 							var response = function(resp){
 								
+								debug_internals('response verb %s', verb);
 								debug_internals('response %o', resp);
 								debug_internals('response type %s',typeOf(resp));
 								
@@ -334,8 +337,11 @@ var AppMuninClient = new Class({
 								}
 								else{
 									debug_internals('response connect');
-									////this.fireEvent(this.ON_CONNECT, {options: merged, uri: options.uri, route: route.path, response: resp, body: body });
-									this.fireEvent(this.ON_CONNECT, resp);
+									
+									//this.request.disconnect();
+									
+									this.fireEvent(this.ON_CONNECT, {uri: options.uri, route: route.path, response: resp} );
+									//this.fireEvent(this.ON_CONNECT, resp);
 								
 
 								
@@ -371,7 +377,7 @@ var AppMuninClient = new Class({
 							
 							var args = [];
 							
-							if(options.uri)
+							if(options.uri != '')
 								args.push(options.uri);
 								
 							//if(options.id)
@@ -398,6 +404,7 @@ var AppMuninClient = new Class({
 							//}
 							//else{
 								//////console.log(this.request);
+								//var req_func = new Munin(this.options.host, this.options.port);
 								var req_func = this.request;
 								
 							//}
@@ -419,6 +426,8 @@ var AppMuninClient = new Class({
 								if(args.length == 1)
 									args = args[0];
 								
+								debug_internals('verb %s', verb);
+								debug_internals('arguments %o', args);
 								//console.log(args);
 								////console.log(verb);
 								////console.log(conn);
@@ -489,13 +498,13 @@ var AppMuninClient = new Class({
 		
 		var get_options = function(options){
 			options.scheme = options.scheme || this.options.scheme;
-			options.url = options.url || this.options.url;
-			options.port = options.port || this.options.port;
-			options.authentication = options.authentication || this.options.authentication;
-			options.jar = options.jar || this.options.jar;
-			options.gzip = options.gzip || this.options.gzip;
+			//options.url = options.url || this.options.url;
+			//options.port = options.port || this.options.port;
+			//options.authentication = options.authentication || this.options.authentication;
+			//options.jar = options.jar || this.options.jar;
+			//options.gzip = options.gzip || this.options.gzip;
 			
-			options.cradle = options.cradle || this.options.cradle;
+			//options.cradle = options.cradle || this.options.cradle;
 			options.host = options.host || this.options.host;
 			options.port = options.port || this.options.port;
 			
