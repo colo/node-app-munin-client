@@ -164,6 +164,7 @@ var AppMuninClient = new Class({
 		//},
   },
   initialize: function(options){
+		throw new Error('Maybe implement with https://www.npmjs.com/package/node-munin-client');
 		
 		this.parent(options);//override default options
 		
