@@ -4,7 +4,7 @@ var App = require('node-app'),
 		path = require('path'),
 		fs = require('fs'),
 		//cradle = require('cradle-pouchdb-server'),
-		Munin = require('munin-client/munin'),
+		Munin = require('node-munin-client'),
 		//request = require('request'),
 		pathToRegexp = require('path-to-regexp');
 		//semver = require('semver');
@@ -314,7 +314,9 @@ var AppMuninClient = new Class({
 							
 							var response = function(resp){
 								
-								debug_internals('response route.path %o', resp);
+								debug_internals('response %o', resp);
+								debug_internals('response type %s',typeOf(resp));
+								
 								////console.log('---req_func.cache.has(options.doc)---')	
 								////console.log(resp._id);
 								////console.log(this.request.database('dashboard').cache.has(resp._id));
@@ -322,58 +324,67 @@ var AppMuninClient = new Class({
 								//console.log('--response callback---');
 								//console.log(arguments);
 								
-								//if(err){
-									////this.fireEvent(this.ON_CONNECT_ERROR, {options: merged, uri: options.uri, route: route.path, error: err });
-									//this.fireEvent(this.ON_CONNECT_ERROR, {error: err });
-								//}
-								//else{
-									////this.fireEvent(this.ON_CONNECT, {options: merged, uri: options.uri, route: route.path, response: resp, body: body });
-									this.fireEvent(this.ON_CONNECT, resp);
-								//}
-
-								
-								if(typeof(callback_alt) == 'function' || callback_alt instanceof Function){
-									var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK[*callback_alt*]';
-									
-									if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
-									
-									callback_alt(resp, {uri: options.uri, route: route.path });
-									
-									if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
+								if(resp == false){
+									debug_internals('response connection closed');
+								}
+								else if(resp == true){//true -> error
+									debug_internals('response error');
+									//////this.fireEvent(this.ON_CONNECT_ERROR, {options: merged, uri: options.uri, route: route.path, error: err });
+									this.fireEvent(this.ON_CONNECT_ERROR, { error: resp });
 								}
 								else{
-									Array.each(callbacks, function(fn){
-										var callback = fn.func;
-										var name = fn.name;
-										
-										var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK['+name+']';
-										
-										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
-										
-										//callback(err, resp, body, {options: merged, uri: options.uri, route: route.path });
-										callback(resp, {uri: options.uri, route: route.path });
-										
-										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
-										
-									}.bind(this))
-								}
+									debug_internals('response connect');
+									////this.fireEvent(this.ON_CONNECT, {options: merged, uri: options.uri, route: route.path, response: resp, body: body });
+									this.fireEvent(this.ON_CONNECT, resp);
 								
+
+								
+									if(typeof(callback_alt) == 'function' || callback_alt instanceof Function){
+										var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK[*callback_alt*]';
+										
+										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
+										
+										callback_alt(resp, {uri: options.uri, route: route.path });
+										
+										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
+									}
+									else{
+										Array.each(callbacks, function(fn){
+											var callback = fn.func;
+											var name = fn.name;
+											
+											var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK['+name+']';
+											
+											if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
+											
+											//callback(err, resp, body, {options: merged, uri: options.uri, route: route.path });
+											callback(resp, {uri: options.uri, route: route.path });
+											
+											if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
+											
+										}.bind(this))
+									}
+								
+								}
 									
 							}.bind(this);
 							
 							var args = [];
+							
+							if(options.uri)
+								args.push(options.uri);
 								
-							if(options.id)
-								args.push(options.id);
+							//if(options.id)
+								//args.push(options.id);
 							
-							if(options.rev)
-								args.push(options.rev);
+							//if(options.rev)
+								//args.push(options.rev);
 							
-							if(options.data)
-								args.push(options.data);
+							//if(options.data)
+								//args.push(options.data);
 									
 							
-							var req_func = null;
+							//var req_func = null;
 							//var db = keys[0];
 							//var cache = keys[1];
 							//var cache_result;
@@ -387,7 +398,7 @@ var AppMuninClient = new Class({
 							//}
 							//else{
 								//////console.log(this.request);
-								req_func = this.request;
+								var req_func = this.request;
 								
 							//}
 							
@@ -411,8 +422,32 @@ var AppMuninClient = new Class({
 								//console.log(args);
 								////console.log(verb);
 								////console.log(conn);
-									
-								req_func[verb].attempt(args, req_func);
+								
+								//req_func['connect'](function(client){
+									//console.log(client);
+									//console.log(typeOf(client));
+									//if(typeOf(client) != 'object' || client == false){
+										//debug_internals('connect error %o', client);
+										//this.fireEvent(this.ON_CONNECT_ERROR, {error: client });
+									//}
+									//else{
+										
+										//req_func[verb].attempt(response, req_func);
+										
+										req_func[verb].attempt(args, req_func);
+										//try{
+										
+										//debug_internals('%o', req_func[ver]);
+										
+											//req_func[verb](response);
+										//}
+										//catch(e){
+											//console.log(e);
+										//}
+									//}
+										
+								//}.bind(this));	
+								
 								
 								
 							//}
