@@ -3,11 +3,8 @@
 var App = require('node-app'),
 		path = require('path'),
 		fs = require('fs'),
-		//cradle = require('cradle-pouchdb-server'),
 		Munin = require('node-munin-client'),
-		//request = require('request'),
 		pathToRegexp = require('path-to-regexp');
-		//semver = require('semver');
 		
 
 //var Logger = require('node-express-logger'),
