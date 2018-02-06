@@ -164,7 +164,7 @@ var AppMuninClient = new Class({
 		//},
   },
   initialize: function(options){
-		throw new Error('Maybe implement with https://www.npmjs.com/package/node-munin-client');
+		//throw new Error('Maybe implement with https://www.npmjs.com/package/node-munin-client');
 		
 		this.parent(options);//override default options
 		
@@ -173,7 +173,7 @@ var AppMuninClient = new Class({
 		 *  - start
 		 * **/
 		
-		this.request = new Munin(this.options.host, this.options.port);
+		this.request = new Munin({ host: this.options.host, port: this.options.port });
 		
 		debug_internals('this.request %o', this.request);
 		
@@ -300,7 +300,7 @@ var AppMuninClient = new Class({
 							 * */
 							if(route.callbacks && route.callbacks.length > 0){
 								route.callbacks.each(function(fn){
-									////console.log('route function: ' + fn);
+									//console.log('route function: ' + fn);
 									
 									//if the callback function, has the same name as the verb, we had it already copied as "original_func"
 									if(fn == verb){
@@ -315,11 +315,9 @@ var AppMuninClient = new Class({
 							
 							var merged = {};
 							
-							var response = function(resp){
+							var response = function(err, resp){
 								
 								debug_internals('response verb %s', verb);
-								debug_internals('response %o', resp);
-								debug_internals('response type %s',typeOf(resp));
 								
 								////console.log('---req_func.cache.has(options.doc)---')	
 								////console.log(resp._id);
@@ -328,51 +326,55 @@ var AppMuninClient = new Class({
 								//console.log('--response callback---');
 								//console.log(arguments);
 								
-								if(resp == false){
-									debug_internals('response connection closed');
-								}
-								else if(resp == true){//true -> error
-									debug_internals('response error');
+								//if(resp == false){
+									//debug_internals('response connection closed');
+									////this.request.disconnect();
+									////this.fireEvent(this.ON_CONNECT_ERROR, { error: resp });
+								//}
+								//else 
+								if(err){
+									debug_internals('response err %o', err);
 									//////this.fireEvent(this.ON_CONNECT_ERROR, {options: merged, uri: options.uri, route: route.path, error: err });
-									this.fireEvent(this.ON_CONNECT_ERROR, { error: resp });
+									this.fireEvent(this.ON_CONNECT_ERROR, {uri: options.uri, route: route.path, error: err });
 								}
 								else{
-									debug_internals('response connect');
+									debug_internals('response %o', resp);
 									
 									//this.request.disconnect();
 									
 									this.fireEvent(this.ON_CONNECT, {uri: options.uri, route: route.path, response: resp} );
 									//this.fireEvent(this.ON_CONNECT, resp);
-								
+								}
 
 								
-									if(typeof(callback_alt) == 'function' || callback_alt instanceof Function){
-										var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK[*callback_alt*]';
-										
-										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
-										
-										callback_alt(resp, {uri: options.uri, route: route.path });
-										
-										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
-									}
-									else{
-										Array.each(callbacks, function(fn){
-											var callback = fn.func;
-											var name = fn.name;
-											
-											var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK['+name+']';
-											
-											if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
-											
-											//callback(err, resp, body, {options: merged, uri: options.uri, route: route.path });
-											callback(resp, {uri: options.uri, route: route.path });
-											
-											if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
-											
-										}.bind(this))
-									}
-								
+								if(typeof(callback_alt) == 'function' || callback_alt instanceof Function){
+									var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK[*callback_alt*]';
+									
+									if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
+									
+									callback_alt(err, resp, {uri: options.uri, route: route.path });
+									
+									if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
 								}
+								else{
+									//console.log(callbacks);
+									Array.each(callbacks, function(fn){
+										var callback = fn.func;
+										var name = fn.name;
+										
+										var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK['+name+']';
+										
+										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
+										
+										//callback(err, resp, body, {options: merged, uri: options.uri, route: route.path });
+										callback(err, resp, {uri: options.uri, route: route.path });
+										
+										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
+										
+									}.bind(this))
+								}
+									
+								
 									
 							}.bind(this);
 							
