@@ -1,5 +1,5 @@
 {
-  "name": "app-munin-client",
+  "name": "node-app-munin-client",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
@@ -18,6 +18,9 @@
   "homepage": "https://github.com/colo/node-app-munin-client#readme",
   "dependencies": {
     "debug": "^3.1.0",
+    "node-app": "git+https://github.com/colo/node-app.git",
+    "node-express-authorization": "git+https://github.com/colo/node-express-authorization.git",
+    "node-munin-client": "git+https://github.com/colo/node-munin-client.git",
     "path-to-regexp": "^2.1.0"
   }
 }
