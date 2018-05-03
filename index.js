@@ -249,7 +249,7 @@ var AppMuninClient = new Class({
 			
 		Array.each(this.methods, function(verb){
 			
-			debug('VERB %s', verb);
+			//debug('VERB %s', verb);
 			//console.log(verb);
 			/**
 			 * @callback_alt if typeof function, gets executed instead of the method asigned to the matched route (is an alternative callback, instead of the default usage)
